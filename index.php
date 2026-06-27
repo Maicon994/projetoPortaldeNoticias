@@ -30,7 +30,7 @@ $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container">
-    <h2><?= $logado ? "📰 Seu Feed (Notícias do Sistema + Suas Publicações)" : "🌍 Últimas do Mundo Inteiro (Modo Público)" ?></h2>
+    <h2><?= $logado ? "📰 Seu Feed" : "🌍 Últimas do Mundo Inteiro (Modo Público)" ?></h2>
 
     <?php if (empty($noticias)): ?>
         <p style="margin-top:2rem;">Nenhuma notícia encontrada por aqui ainda...</p>
@@ -58,7 +58,7 @@ $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
-</div>
+ </div>
 </body>
 
 </html>

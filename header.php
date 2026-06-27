@@ -12,8 +12,8 @@
     <nav>
         <a href="index.php">Início</a>
         <?php if(isset($_SESSION['user_id'])): ?>
-            <a href="nova-noticia.php">✍️ Publicar Notícia</a>
-            <a href="perfil.php">👤 Meu Perfil (<?= htmlspecialchars($_SESSION['user_nome']) ?>)</a>
+            <a href="nova-noticia.php">Publicar Notícia</a>
+            <a href="perfil.php">👤 Meu Perfil</a>
             <a href="logout.php" style="color: var(--accent)">Sair</a>
         <?php else: ?>
             <a href="login.php">Entrar</a>
