@@ -1,0 +1,73 @@
+USE portal_satira;
+
+-- Limpar dados anteriores para evitar conflitos de ID
+DROP TABLE IF EXISTS likes_noticia;
+DROP TABLE IF EXISTS comentarios;
+DROP TABLE IF EXISTS noticias;
+DROP TABLE IF EXISTS usuarios;
+
+-- Criar Tabela de Usuários
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL
+);
+
+-- Criar Tabela de Notícias
+CREATE TABLE noticias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    noticia TEXT NOT NULL,
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
+    autor INT NOT NULL,
+    imagem VARCHAR(255) DEFAULT NULL,
+    FOREIGN KEY (autor) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- Criar Tabela de Comentários
+CREATE TABLE comentarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    noticia_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    comentario TEXT NOT NULL,
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (noticia_id) REFERENCES noticias(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- Criar Tabela de Likes
+CREATE TABLE likes_noticia (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    noticia_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    UNIQUE KEY unique_like (noticia_id, usuario_id),
+    FOREIGN KEY (noticia_id) REFERENCES noticias(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- INSERÇÃO DE DADOS PADRÃO (Notícias prontas)
+-- Criando um usuário 'Redação Fake Times' (A senha padrão criptografada é '123456')
+INSERT INTO usuarios (id, nome, email, senha) VALUES 
+(1, 'Redação Fake Times', 'redacao@faketimes.com', '$2y$10$3eYvX7p1B5wYVbC8j7Eze.O3LqM3fG9A6O7Y2kE8fC2B5m9R8y9G.');
+
+-- Inserindo as notícias satíricas iniciais vinculadas ao usuário 1
+INSERT INTO noticias (titulo, noticia, autor, imagem) VALUES 
+(
+ 'Cientistas confirmam: Segunda-feira passa 4x mais devagar que o final de semana', 
+ 'Um estudo revolucionário realizado pelo Instituto de Cronometragem Relativa de Harvard revelou o que toda a humanidade já suspeitava: o tempo é maleável. Segundo os pesquisadores, as 24 horas de uma segunda-feira possuem uma densidade temporal modificada pela força do desânimo coletivo, fazendo com que cada minuto no escritório equivalha a aproximadamente 45 minutos em uma praia no domingo. O estudo recomenda doses massivas de café para distorcer a realidade.', 
+ 1, 
+ NULL
+),
+(
+ 'Governo estuda criar imposto sobre quem responde e-mail com "segue em anexo"', 
+ 'A nova proposta de reforma tributária visa taxar a falta de criatividade corporativa. De acordo com o texto inicial do projeto de lei, cada e-mail enviado contendo os termos "conforme conversamos", "segue em anexo" ou "atenciosamente" sofrerá uma taxação automática direto na folha de pagamento. O objetivo é arrecadar fundos para financiar cursos de comunicação não-clichê para profissionais de escritório.', 
+ 1, 
+ NULL
+),
+(
+ 'IA generativa cria sósia digital para participar de reuniões do Teams no seu lugar', 
+ 'Uma nova startup do Vale do Silício lançou o "GhostWorker Pro", uma inteligência artificial treinada especificamente para substituir funcionários em reuniões online maçantes. A IA imita perfeitamente o rosto do usuário, balança a cabeça positivamente a cada 30 segundos, sorri de piadas do chefe e digita automaticamente "Excelente ponto!" no chat da reunião. Testes iniciais mostraram que três robôs foram promovidos antes dos humanos originais.', 
+ 1, 
+ NULL
+);
