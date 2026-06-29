@@ -1,5 +1,5 @@
-<?php 
-require_once 'header.php'; 
+<?php
+require_once 'header.php';
 
 $noticia_id = $_GET['id'] ?? null;
 
@@ -8,7 +8,7 @@ if (isset($_POST['like']) && isset($_SESSION['user_id'])) {
     try {
         $stmtLike = $pdo->prepare("INSERT INTO likes_noticia (noticia_id, usuario_id) VALUES (?, ?)");
         $stmtLike->execute([$noticia_id, $_SESSION['user_id']]);
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         // Se o usuário já tiver curtido, desfaz a curtida (Toggle)
         $stmtDeslike = $pdo->prepare("DELETE FROM likes_noticia WHERE noticia_id = ? AND usuario_id = ?");
         $stmtDeslike->execute([$noticia_id, $_SESSION['user_id']]);
@@ -30,7 +30,9 @@ $stmt = $pdo->prepare("SELECT n.*, u.nome as autor_nome FROM noticias n JOIN usu
 $stmt->execute([$noticia_id]);
 $n = $stmt->fetch();
 
-if(!$n) { die("<div class='container'><h2>Notícia não encontrada!</h2></div>"); }
+if (!$n) {
+    die("<div class='container'><h2>Notícia não encontrada!</h2></div>");
+}
 
 // Contagem total de likes
 $stmtLikesCount = $pdo->prepare("SELECT COUNT(*) FROM likes_noticia WHERE noticia_id = ?");
@@ -41,13 +43,23 @@ $total_likes = $stmtLikesCount->fetchColumn();
 $stmtComentarios = $pdo->prepare("SELECT c.*, u.nome FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id WHERE c.noticia_id = ? ORDER BY c.data DESC");
 $stmtComentarios->execute([$noticia_id]);
 $comentarios = $stmtComentarios->fetchAll();
+
+$stmtVerifica = $pdo->prepare(
+    "SELECT COUNT(*) FROM likes_noticia
+     WHERE noticia_id = ? AND usuario_id = ?"
+);
+
+$stmtVerifica->execute([$noticia_id, $_SESSION['user_id']]);
+$curtiu = $stmtVerifica->fetchColumn() > 0;
 ?>
 
 <div class="container noticia-completa" style="background: white; padding: 2.5rem; border-radius: 8px;">
     <h1><?= htmlspecialchars($n['titulo']) ?></h1>
-    <div class="meta">Por: <strong><?= htmlspecialchars($n['autor_nome']) ?></strong> | Em: <?= date('d/m/Y H:i', strtotime($n['data'])) ?></div>
-    
-    <?php if(!empty($n['imagem'])): ?>
+    <div class="meta">Por: <strong><?= htmlspecialchars($n['autor_nome']) ?></strong> | Em:
+        <?= date('d/m/Y H:i', strtotime($n['data'])) ?>
+    </div>
+
+    <?php if (!empty($n['imagem'])): ?>
         <img src="<?= htmlspecialchars($n['imagem']) ?>" class="img-noticia" alt="Imagem da notícia">
     <?php endif; ?>
 
@@ -56,10 +68,18 @@ $comentarios = $stmtComentarios->fetchAll();
     </div>
 
     <div class="like-box">
-        <span>👍 <strong><?= $total_likes ?></strong> pessoas acreditaram nesse boato</span>
-        <?php if(isset($_SESSION['user_id'])): ?>
+        <div class="likes-info">
+            <span>
+                👍 <strong><?= $total_likes ?></strong> pessoas acreditaram nesse boato
+            </span>
+        </div>
+        <?php if (isset($_SESSION['user_id'])): ?>
             <form method="POST" style="display:inline;">
-                <button type="submit" name="like" class="btn btn-primary btn-sm">Curtir / Descurtir</button>
+                <button type="submit" name="like" class="btn <?= $curtiu ? 'btn-accent' : 'btn-primary' ?> btn-sm">
+
+                    <?= $curtiu ? '👎 Descurtir' : '👍 Curtir' ?>
+
+                </button>
             </form>
         <?php else: ?>
             <small style="color: gray;">(Faça login para curtir)</small>
@@ -68,10 +88,11 @@ $comentarios = $stmtComentarios->fetchAll();
 
     <div class="comments-section">
         <h3>Comentários (<?= count($comentarios) ?>)</h3>
-        
-        <?php if(isset($_SESSION['user_id'])): ?>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
             <form method="POST" style="margin-top: 1rem;">
-                <textarea name="comentario" rows="3" placeholder="Deixe sua opinião irônica sobre isso..." required></textarea>
+                <textarea name="comentario" rows="3" placeholder="Deixe sua opinião irônica sobre isso..."
+                    required></textarea>
                 <button type="submit" name="comentar" class="btn btn-primary">Enviar Comentário</button>
             </form>
         <?php else: ?>
@@ -79,9 +100,11 @@ $comentarios = $stmtComentarios->fetchAll();
         <?php endif; ?>
 
         <div style="margin-top: 2rem;">
-            <?php foreach($comentarios as $c): ?>
+            <?php foreach ($comentarios as $c): ?>
                 <div class="comment">
-                    <div class="comment-meta"><?= htmlspecialchars($c['nome']) ?> • <span style="font-weight:normal; color:#a0aec0;"><?= date('d/m/Y H:i', strtotime($c['data'])) ?></span></div>
+                    <div class="comment-meta"><?= htmlspecialchars($c['nome']) ?> • <span
+                            style="font-weight:normal; color:#a0aec0;"><?= date('d/m/Y H:i', strtotime($c['data'])) ?></span>
+                    </div>
                     <p style="margin-top:0.25rem;"><?= nl2br(htmlspecialchars($c['comentario'])) ?></p>
                 </div>
             <?php endforeach; ?>
@@ -89,4 +112,5 @@ $comentarios = $stmtComentarios->fetchAll();
     </div>
 </div>
 </body>
+
 </html>

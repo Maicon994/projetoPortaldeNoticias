@@ -6,6 +6,23 @@
   --text: #2d3748;
 }
 
+.like-box{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:25px 0;
+    padding:15px 20px;
+    background:#f5f5f5;
+    border-radius:10px;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.likes-info{
+    font-size:17px;
+    font-weight:600;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
